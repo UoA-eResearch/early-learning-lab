@@ -10,9 +10,9 @@ export const QUARTER_WIDTH = WIDTH / 4; //px
 
 export const TILE_SIZE = 110;
 
-export const TARGET_LEFT = 100;
-export const TARGET_TOP = 200;
-export const BUILD_AREA_LEFT = TARGET_LEFT + 4 * TILE_SIZE;
+export const TARGET_LEFT = 50;
+export const TARGET_TOP = 100;
+export const BUILD_AREA_LEFT = TARGET_LEFT + 2 * TILE_SIZE;
 export const BUILD_AREA_TOP = TARGET_TOP;
 
 export const WHITE = 0xffffff;
