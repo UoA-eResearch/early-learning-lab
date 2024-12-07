@@ -57,8 +57,8 @@ export class Level1 extends BaseBricksScene {
       },
     });
     tileBoxes.strokeRect(
-      TARGET_LEFT - BORDER / 2,
-      TARGET_TOP - BORDER / 2,
+      TARGET_LEFT - BORDER / 4,
+      TARGET_TOP - BORDER / 4,
       this.cols * TILE_SIZE + BORDER,
       this.rows * TILE_SIZE + BORDER,
     );
