@@ -1,4 +1,6 @@
-# Apple Catcher
+# Bricks Shape
+
+The Bricks Shape game
 
 ## Available Commands
 
@@ -15,8 +17,7 @@ Then, you can start the local development server by running `yarn dev`.
 
 The local development server runs on [localhost](http://localhost:8080) by default.
 
-Once the server is running you can edit any of the files in the `src` folder. Vite will automatically recompile your
-code and then reload the browser.
+Once the server is running you can edit any of the files in the `src` folder. Vite will automatically recompile your code and then reload the browser.
 
 ## Template Project Structure
 
@@ -34,15 +35,13 @@ We have provided a default project structure to get you started. This is as foll
 
 Vite supports loading assets via JavaScript module `import` statements.
 
-This template provides support for both embedding assets and also loading them from a static folder. To embed an asset,
-you can import it at the top of the JavaScript file you are using it in:
+This template provides support for both embedding assets and also loading them from a static folder. To embed an asset, you can import it at the top of the JavaScript file you are using it in:
 
 ```js
 import logoImg from "./assets/logo.png";
 ```
 
-To load static files such as audio files, videos, etc place them into the `public/assets` folder. Then you can use this
-path in the Loader calls within Phaser:
+To load static files such as audio files, videos, etc place them into the `public/assets` folder. Then you can use this path in the Loader calls within Phaser:
 
 ```js
 preload();
@@ -56,9 +55,5 @@ preload();
   this.load.image("background", "assets/bg.png");
 }
 ```
-
-When you issue the `yarn build` command, all static assets are automatically copied to the `dist/assets` folder.
-
-## Deploying to Production
 
 When you issue the `yarn build` command, all static assets are automatically copied to a game-specific sub-folder in the `docs` folder to be served by Jekyll.

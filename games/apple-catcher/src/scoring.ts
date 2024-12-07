@@ -68,7 +68,7 @@ type BaseScoringData = {
   basket: Position;
 };
 
-export type Level0ScoringData = BaseScoringData & {
+export type Level0ScoringData = {
   score: CaughtAppleCount;
 };
 
@@ -84,6 +84,7 @@ export type Level3ScoringData = BinaryScoringData;
 
 export type Level4ScoringData = BinaryScoringData & {
   apple: Position;
+  pipeLayout: 0 | 1;
 };
 
 export function removeScoreData(): void {
