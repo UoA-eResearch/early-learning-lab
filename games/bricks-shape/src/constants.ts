@@ -8,11 +8,12 @@ export const GAME_AREA_WIDTH = WIDTH - 2 * GUTTER_WIDTH; //px
 export const HALF_WIDTH = WIDTH / 2; //px
 export const QUARTER_WIDTH = WIDTH / 4; //px
 
-export const TILE_SIZE = 110;
+export const TILE_SIZE_TARGET = 80;
+export const TILE_SIZE_BUILD = 110;
 
-export const TARGET_LEFT = 75;
+export const TARGET_LEFT = 80;
 export const TARGET_TOP = 200;
-export const BUILD_AREA_LEFT = TARGET_LEFT + 3 * TILE_SIZE;
+export const BUILD_AREA_LEFT = TARGET_LEFT + 3 * TILE_SIZE_TARGET + 5;
 export const BUILD_AREA_TOP = TARGET_TOP;
 
 export const WHITE = 0xffffff;
