@@ -2,8 +2,6 @@ import { BaseBricksScene } from "./BaseBricksScene.ts";
 import {
   AQUA,
   BLACK,
-  BUILD_AREA_LEFT,
-  BUILD_AREA_TOP,
   FUSCHIA,
   HALF_WIDTH,
   LIME,
@@ -11,7 +9,10 @@ import {
   RED,
   TARGET_LEFT,
   TARGET_TOP,
+  BUILD_AREA_LEFT,
+  BUILD_AREA_TOP,
   TILE_SIZE_TARGET,
+  TILE_SIZE_BUILD,
   YELLOW,
 } from "../constants.ts";
 import Pointer = Phaser.Input.Pointer;
@@ -29,6 +30,12 @@ export class Level1 extends BaseBricksScene {
     4 * TILE_SIZE_TARGET,
     5 * TILE_SIZE_TARGET,
     6 * TILE_SIZE_TARGET,
+    TILE_SIZE_BUILD,
+    2 * TILE_SIZE_BUILD,
+    3 * TILE_SIZE_BUILD,
+    4 * TILE_SIZE_BUILD,
+    5 * TILE_SIZE_BUILD,
+    6 * TILE_SIZE_BUILD,
   ];
   private buildTileYOffsets = [10, 20, 30, 40, 50, 60];
   private allTiles: Phaser.GameObjects.GameObject[] = [];
@@ -50,21 +57,15 @@ export class Level1 extends BaseBricksScene {
   create() {
     super.create();
     const BORDER = 4;
-    const tileBoxes = this.add.graphics({
+    const TARGET_tileBoxes = this.add.graphics({
       lineStyle: {
         width: BORDER,
         color: BLACK,
       },
     });
-    tileBoxes.strokeRect(
+    TARGET_tileBoxes.strokeRect(
       TARGET_LEFT - BORDER / 2,
       TARGET_TOP - BORDER / 2,
-      this.cols * TILE_SIZE_TARGET + BORDER,
-      this.rows * TILE_SIZE_TARGET + BORDER,
-    );
-    tileBoxes.strokeRect(
-      BUILD_AREA_LEFT - BORDER / 2,
-      BUILD_AREA_TOP - BORDER / 2,
       this.cols * TILE_SIZE_TARGET + BORDER,
       this.rows * TILE_SIZE_TARGET + BORDER,
     );
@@ -81,7 +82,35 @@ export class Level1 extends BaseBricksScene {
         .fillRect(0, 0, TILE_SIZE_TARGET, TILE_SIZE_TARGET)
         .generateTexture("" + colour, TILE_SIZE_TARGET, TILE_SIZE_TARGET);
     }
+    super.create();
+    const BORDER = 4;
+    const BUILD_tileBoxes = this.add.graphics({
+      lineStyle: {
+        width: BORDER,
+        color: BLACK,
+      },
+    });
+    BUILD_tileBoxes.strokeRect(
+      BUILD_AREA_LEFT - BORDER / 2,
+      BUILD_AREA_TOP - BORDER / 2,
+      this.cols * TILE_SIZE_BUILD + BORDER,
+      this.rows * TILE_SIZE_BUILD + BORDER,
+    );
+    for (let tileIndex = 1; tileIndex <= this.rows * this.cols; tileIndex++) {
+      // Create a texture for each tile, so we can use it to create sprites
+      const colour = this.colours[tileIndex - 1];
+      this.add
+        .graphics({
+          fillStyle: {
+            color: colour,
+          },
+        })
+        .setVisible(false)
+        .fillRect(0, 0, TILE_SIZE_BUILD, TILE_SIZE_BUILD)
+        .generateTexture("" + colour, TILE_SIZE_BUILD, TILE_SIZE_BUILD);
+    }
 
+    
     const resetButton = this.add.graphics();
     resetButton.lineStyle(2, BLACK);
     resetButton.fillStyle(ORANGE);
