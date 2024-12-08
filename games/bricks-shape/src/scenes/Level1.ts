@@ -142,6 +142,8 @@ export class Level1 extends BaseBricksScene {
 
   private resetTileSeedData() {
     Phaser.Utils.Array.Shuffle(this.colours);
+    Phaser.Utils.Array.Shuffle(this.targetTileXOffsets);
+    Phaser.Utils.Array.Shuffle(this.targetTileYOffsets);
     Phaser.Utils.Array.Shuffle(this.buildTileXOffsets);
     Phaser.Utils.Array.Shuffle(this.buildTileYOffsets);
   }
