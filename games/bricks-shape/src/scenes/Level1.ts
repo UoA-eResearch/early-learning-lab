@@ -163,8 +163,9 @@ export class Level1 extends BaseBricksScene {
         )
         .setOrigin(0, 0);
       this.TargetTiles.push(targetTile);
-
+    }
     for (let BUILD_tileIndex = 1; BUILD_tileIndex <= this.rows * this.cols; BUILD_tileIndex++) {
+      const colour = this.colours[BUILD_tileIndex - 1];
       // drop zone in build area for this tile
       const zone = this.add
         .zone(
@@ -217,9 +218,7 @@ export class Level1 extends BaseBricksScene {
       this.BuildTiles.push(buildTile);
     }
   }
-  
   private removeExistingTiles() {
-    this.TargetTiles.forEach((item) => item.destroy());
     this.BuildTiles.forEach((item) => item.destroy());
   }
 }
