@@ -4,7 +4,7 @@
   "devDependencies": {
     "terser": "^5.31.0",
     "typescript": "^5.4.5",
-    "vite": "^5.3.1"
+    "vite": "^5.4.12"
   },
   "scripts": {
     "dev": "vite --config vite/config.dev.mjs",
