@@ -1,5 +1,5 @@
-import { MarbleTrackScene } from "./MarblesTrackScene";
-import {WHITE, GREEN, gameAreaWidth, gameAreaHeight, gameAreaX, gameAreaY} from "../constants";
+import { MarbleTrackScene } from "./MarblesTrackScene.ts";
+import {WHITE, GREEN, gameAreaWidth, gameAreaHeight, gameAreaX, gameAreaY} from "../constants.ts";
 import { Level3ScoringData } from "../scoring.ts";
 import { Body } from "matter-js"; 
 
@@ -22,11 +22,13 @@ export class Level3 extends MarbleTrackScene<Level3ScoringData> {
   override create(): void {
     this.matter.world.drawDebug = false;
     super.create();
+    this.trackPaths = [];
     this.allTracks = [];
+    this.staticTracks = [];
     this.setupTrack();
+    this.setupHouse(gameAreaX + 185,gameAreaY + 160);
+    this.createFunnel(gameAreaX - 370,gameAreaY - 15);
     this.setupDraggableTracks();
-    this.setupBowl(gameAreaX - 400, gameAreaY + 209);
-    this.setupFlag();
     this.setupBounds();
     this.setupDropMarble();
     this.setupButtons();
@@ -35,33 +37,31 @@ export class Level3 extends MarbleTrackScene<Level3ScoringData> {
   }
 
   private setupTrack() {
-    const track1 = this.createTube(450, 6, gameAreaX - 160, gameAreaY);
-    const track2 = this.createTube(400, -8, gameAreaX - 160, gameAreaY + 180); 
+    const wholeX = gameAreaX - 100
+    const wholeY = gameAreaY + 105;
+    const track1 =  this.createTube(180, 15, wholeX + 154.5, wholeY + 41.4, 32);
+    const track2 = this.createTube(180, 15, wholeX - 154.5, wholeY - 41.4, 32);
     this.staticTracks.push(track1);
     this.staticTracks.push(track2);
+    this.staticTracks.forEach(track => track.setSensor(false));
   }
 
   private trackPositions = [
-    { x: gameAreaX + 340, y: gameAreaY + 190 },
-    { x: gameAreaX + 340, y: gameAreaY + 100 },
-    { x: gameAreaX + 380, y: gameAreaY + 160 }
+    { x: gameAreaX - 50, y: gameAreaY - 200 },
+    { x: gameAreaX + 100, y: gameAreaY - 150 },
+    { x: gameAreaX + 250, y: gameAreaY - 100 },
+    { x: gameAreaX - 50, y: gameAreaY - 50 },
+    { x: gameAreaX + 100, y: gameAreaY },
   ];
 
   private setupDraggableTracks() {
     this.add
-      .rectangle(gameAreaX + gameAreaWidth / 2 - 130, gameAreaY + gameAreaHeight / 2 - 110, 220, 180, WHITE)
+      .rectangle(gameAreaX + 100, gameAreaY - 100 , 500, 340, WHITE)
       .setStrokeStyle(5, GREEN);
 
-    const trackConfigs = [
-      { length: 200, angle: 15 },
-      { length: 200, angle: -20 },
-      { length: 150, angle: 30 }
-    ];
-
-    for (let i = 0; i < 3; i++) {
-      const { length, angle } = trackConfigs[i];
+    for (let i = 0; i < 5; i++) {
       const { x, y } = this.trackPositions[i];
-      const track = this.createDraggableTrack(length, angle, x, y, i);
+      const track = this.createDraggableTrack(x, y, i);
       this.allTracks.push(track);
     }
   }
@@ -95,11 +95,10 @@ export class Level3 extends MarbleTrackScene<Level3ScoringData> {
     }
   }
 
-  private createTube(length: number, angle: number, x: number, y: number): Phaser.Physics.Matter.Image {
+  private createTube(length: number, angle: number, x: number, y: number, offset: number): Phaser.Physics.Matter.Image {
     const height = 10;
-    const offset = 32;
 
-    // --- 上下碰撞体 ---
+    // --- Top and bottom collision bodies ---
     const top = this.matter.add.image(x, y - offset, "track")
         .setDisplaySize(length, height)
         .setStatic(true)
@@ -110,14 +109,14 @@ export class Level3 extends MarbleTrackScene<Level3ScoringData> {
         .setStatic(true)
         .setVisible(false);
 
-    // --- main 作为控制中心 ---
+    // --- Main body as the control center ---
     const main = this.matter.add.image(x, y, "tube")
         .setDisplaySize(length + 10, offset * 2 + 7)
         .setAngle(angle)
         .setDepth(0)
         .setStatic(true);
 
-    // --- 空气模式（不碰撞） ---
+    // --- Air mode (no collision) ---
     main.setSensor(true); 
     main.setIgnoreGravity(true);
 
@@ -130,7 +129,7 @@ export class Level3 extends MarbleTrackScene<Level3ScoringData> {
     (main as any).overlay = overlay;
     (main as any).children = [top, bottom];
 
-    // --- 同步 top/bottom 和 overlay ---
+    // --- Sync top/bottom and overlay ---
     (main as any).syncChildren = () => {
         const rad = Phaser.Math.DegToRad(main.angle);
         const sin = Math.sin(rad);
@@ -156,12 +155,69 @@ export class Level3 extends MarbleTrackScene<Level3ScoringData> {
     return main;
 }
 
-private createDraggableTrack(length: number, angle: number, x: number, y: number, index: number): Phaser.Physics.Matter.Image {
-  const trackId = `track-${index}`;
-  
-  const track = this.createTube(length, angle, x, y); 
+private createDraggableTrack(x: number, y: number, type: number): Phaser.Physics.Matter.Image {
+  //const trackId = `track-${type}`;
+  let trackId: string;
+  let length: number;
+  let angle: number;
+  let offset: number;
+
+  switch (type) {
+    case 0:
+      trackId = `track-correct`
+      length = 130;
+      angle = 15;
+      x = 600;
+      y = 300;
+      offset = 32;
+      break;
+    case 1:
+      trackId = `track-long`
+      length = 200;
+      angle = 15;
+      x = 500;
+      y = 350;
+      offset = 32;
+      break;
+    case 2:
+      trackId = `track-short`
+      length = 40;
+      angle = 15;
+      x = 500;
+      y = 350;
+      offset = 32;
+      break;
+    case 3:
+      trackId = `track-thick`
+      length = 130;
+      angle = 15;
+      x = 600;
+      y = 300;
+      offset = 60;
+      break;
+    case 4:
+      trackId = `track-thin`
+      length = 130;
+      angle = 15;
+      x = 500;
+      y = 350;
+      offset = 16;
+      break;
+    default:
+      // Default values to prevent illegal type input
+      length = 130;
+      angle = 15;
+      x = 600;
+      y = 300;
+      offset = 32;
+      console.warn(`Unknown track type: ${type}, using default settings.`);
+      break;
+  }
+
+  const track = this.createTube(length, angle, x, y, offset); 
   const skin = (track as any).overlay as Phaser.GameObjects.Image;
 
+  track.setSensor(false);
   track.setCollisionCategory(this.draggableTrackCategory);
   track.setCollidesWith(~this.draggableTrackCategory);
 
@@ -174,8 +230,6 @@ private createDraggableTrack(length: number, angle: number, x: number, y: number
   let dragStartTime = 0;
 
   skin.on("dragstart", () => {
-    track.setSensor(false);
-    this.staticTracks.forEach(track => track.setSensor(false));
     this.allTracks.forEach(track => {
       (track as any).children.forEach((child: Phaser.Physics.Matter.Image) => {
         child.setSensor(true);
@@ -226,12 +280,12 @@ private createDraggableTrack(length: number, angle: number, x: number, y: number
   });
 
   skin.on("drag", (_pointer: Phaser.Input.Pointer, dragX: number, dragY: number) => {
-    // 保持非静态
+    // Keep non-static
     track.setStatic(false);
     track.setCollisionCategory(this.draggableTrackCategory);
     track.setCollidesWith(~this.draggableTrackCategory);
 
-    // 限制范围
+    // Limit boundaries
     const halfTrackWidth = track.displayWidth / 2;
     const halfTrackHeight = track.displayHeight / 2;
     const left = gameAreaX - gameAreaWidth / 2 + halfTrackWidth;
@@ -242,20 +296,19 @@ private createDraggableTrack(length: number, angle: number, x: number, y: number
     const clampedX = Phaser.Math.Clamp(dragX, left, right);
     const clampedY = Phaser.Math.Clamp(dragY, top, bottom);
 
-    // --- 关键改动 ---
-    // 用 Phaser.Math.Interpolation.Linear 或 Lerp 来平滑移动
-    const lerpFactor = 0.35; // 0.0 ~ 1.0，越大越“紧跟鼠标”，越小越“平滑安全”
+    // Use Linear interpolation / Lerp for smooth movement
+    const lerpFactor = 0.35; // 0.0 ~ 1.0, higher = follow mouse more tightly, lower = smoother
     const newX = Phaser.Math.Linear(track.x, clampedX, lerpFactor);
     const newY = Phaser.Math.Linear(track.y, clampedY, lerpFactor);
 
-    // 使用 Matter 的 Body.setPosition 让引擎感知位置变化
+    // Use Matter's Body.setPosition to let engine perceive position change
     Body.setPosition(track.body as Body, { x: newX, y: newY });
 
-    // 角度固定
+    // Fix angle
     Body.setAngle(track.body as Body, Phaser.Math.DegToRad(originalAngle));
     track.setAngularVelocity(0);
 
-    // 同步 skin 和 children
+    // Sync skin and children
     skin.setPosition(track.x, track.y);
     skin.setAngle(originalAngle);
     (track as any).syncChildren();
@@ -266,7 +319,6 @@ private createDraggableTrack(length: number, angle: number, x: number, y: number
   skin.on("dragend", () => {
     skin.setPosition(track.x, track.y);
     //track.setSensor(true);
-    this.staticTracks.forEach(track => track.setSensor(true));
     this.allTracks.forEach(track => {
       (track as any).children.forEach((child: Phaser.Physics.Matter.Image) => {
         child.setSensor(false);
@@ -308,10 +360,20 @@ private createDraggableTrack(length: number, angle: number, x: number, y: number
   return track;
 }
 
+override update(time: number, delta: number): void {
+  super.update(time, delta);
+
+  this.allTracks.forEach(track => {
+    if ((track as any).syncChildren) {
+      (track as any).syncChildren();
+    }
+  });
+}
+
 
   private setupDropMarble() {
-    const boxX = gameAreaX - 370;
-    const boxY = gameAreaY - 160;
+    const boxX = gameAreaX - 450;
+    const boxY = gameAreaY - 175;
 
     this.dropMarble = this.matter.add.image(boxX, boxY, "marble")
       .setScale(0.06)
@@ -327,13 +389,11 @@ private createDraggableTrack(length: number, angle: number, x: number, y: number
   }
 
   private setupButtons() {}
-  private setupFlag() {
-    const flag = this.add.image(gameAreaX - 420, gameAreaY + 180, "flag");
-    flag.setScale(0.1);
-  }
 
   private lidCollider?: MatterJS.BodyType;
+
   protected override onDropPressed() {
+    this.staticTracks.forEach(track => track.setSensor(true));
     this.dropClickTime = Date.now();
     this.releaseMarble(this.dropMarble, 25, 0.05);
     this.rotateLidWithCollider(this.lidCollider);
@@ -344,6 +404,7 @@ private createDraggableTrack(length: number, angle: number, x: number, y: number
       const skin = (track as any).overlay as Phaser.GameObjects.Image;
       this.input.setDraggable(skin, false);
       skin.disableInteractive();
+      (track as any).setSensor(true);
     });
   }
 }

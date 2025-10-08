@@ -4,9 +4,7 @@ import { Level0ScoringData } from "../scoring.ts";
 import { Body } from "matter-js"; 
 
 export class Level0Test extends MarbleTrackScene<Level0ScoringData> {
-  private allTracks: Phaser.GameObjects.Image[] = [];
   private marble!:Phaser.Physics.Matter.Image;
-
   private isDragging = true;
   private dragStartTime = 0;
   private nextRecordTime = 0;
@@ -30,12 +28,10 @@ export class Level0Test extends MarbleTrackScene<Level0ScoringData> {
     this.matter.world.drawDebug = false;
     super.create();
     this.setupTrack();
-    //this.setupDraggableTracks();
     this.setupHouse(gameAreaX + 185,gameAreaY + 160);
     this.setupBounds();
     this.setupMarble();
     this.createFunnel(gameAreaX - 370,gameAreaY - 15);
-    this.allTracks = [];
   }
 
   // Sets up the marble so that it behaves likes a circle and is draggable
@@ -166,7 +162,6 @@ export class Level0Test extends MarbleTrackScene<Level0ScoringData> {
     const height = 10;
     const offset = 32;
 
-    // --- 上下碰撞体 ---
     const top = this.matter.add.image(x, y - offset, "track")
         .setDisplaySize(length, height)
         .setStatic(true)
@@ -177,14 +172,14 @@ export class Level0Test extends MarbleTrackScene<Level0ScoringData> {
         .setStatic(true)
         .setVisible(false);
 
-    // --- main 作为控制中心 ---
+    // --- main ---
     const main = this.matter.add.image(x, y, "tube")
         .setDisplaySize(length + 10, offset * 2 + 7)
         .setAngle(angle)
         .setDepth(1)
         .setStatic(true);
 
-    // --- 空气模式（不碰撞） ---
+    // --- air mode ---
     main.setSensor(true); 
 
     // --- overlay ---
@@ -196,7 +191,7 @@ export class Level0Test extends MarbleTrackScene<Level0ScoringData> {
     (main as any).overlay = overlay;
     (main as any).children = [top, bottom];
 
-    // --- 同步 top/bottom 和 overlay ---
+    // --- top/bottom and overlay ---
     (main as any).syncChildren = () => {
         const rad = Phaser.Math.DegToRad(main.angle);
         const sin = Math.sin(rad);
@@ -220,131 +215,5 @@ export class Level0Test extends MarbleTrackScene<Level0ScoringData> {
 
     (main as any).syncChildren();
     return main;
-}
-
-  private createFunnel(x: number, y: number): Phaser.Physics.Matter.Image {
-    const height = 10;
-    const offset = 60;
-
-    const top = this.matter.add.image(x - offset - 5, y - 30 , "track")
-        .setDisplaySize(100, height)
-        .setAngle(60)
-        .setStatic(true)
-        .setVisible(false);
-
-    const bottom = this.matter.add.image(x + offset + 5, y - 30, "track")
-        .setDisplaySize(100, height)
-        .setAngle(-60)
-        .setStatic(true)
-        .setVisible(false);
-
-    
-    const main = this.matter.add.image(x, y, "funnel")
-        .setDisplaySize(200, 220)
-        .setDepth(1)
-        .setStatic(true);
-
-    // ---air mode ---
-    main.setSensor(true); 
-
-    // --- overlay ---
-    const overlay = this.add.image(x, y, "funnel")
-        .setDisplaySize(200, 220)
-        .setAlpha(0.5)
-        .setDepth(5);
-    this.setupMidBowl(x + 20,y + 50);      
-    return main;
-}
-
-private setupMidBowl(bowlX: number, bowlY: number) {
-  
-  const bowlRadius = 70;
-
-  const bowlImage = this.add.image(bowlX, bowlY, 'bowl');
-  bowlImage.setOrigin(0.5, 0.5);
-  bowlImage.setVisible(false);
-  bowlImage.setScale(0.1);
-  bowlImage.setRotation(Phaser.Math.DegToRad(30));
-
-  const arcLength = Math.PI * bowlRadius;
-  const segments = Math.floor(arcLength / 20);
-  const parts: MatterJS.BodyType[] = [];
-
-  const rotateDegrees = 15;
-  const rotateRadians = Phaser.Math.DegToRad(rotateDegrees);
-
-  for (let i = 0; i <= segments; i++) {
-    const angle = Math.PI - (i * Math.PI/ 2.1) / segments;
-    const rotatedAngle = angle + rotateRadians;
-    const x = bowlX + 10 + bowlRadius * Math.cos(rotatedAngle);
-    const y = bowlY - 20 + bowlRadius * Math.sin(rotatedAngle)*0.8; 
-    const circle = this.matter.bodies.circle(x, y, 5, {
-      isStatic: true,
-      friction: 0.01,
-    });
-    parts.push(circle);
-  }
-
-  const compoundBody = this.matter.body.create({ parts, isStatic: true });
-  this.matter.world.add(compoundBody);
-}
-
-// Sets up a bowl where the marble will land
-protected setupHouse(bowlX: number, bowlY: number) {
-  const bowlRadius = 42;
-  const bowlImage = this.add.image(bowlX, bowlY + 12, "house");
-  bowlImage.setOrigin(0.5, 0.5);
-  bowlImage.setScale(0.1);
-  bowlImage.setDepth(0);
-  const overlay = this.add.image(bowlX, bowlY + 12, "houseOverlay")
-        .setDisplaySize(200, 220)
-        .setScale(0.1)
-        .setAlpha(0.5)
-        .setDepth(3);
-
-  const arcLength = Math.PI * bowlRadius;
-  const segments = Math.floor(arcLength / 18);
-  const parts: MatterJS.BodyType[] = [];
-
-  for (let i = 1; i <= segments - 1; i++) {
-    const angle = Math.PI - (i * Math.PI) / segments;
-    const x = bowlX + bowlRadius * Math.cos(angle);
-    const y = bowlY + 34  + bowlRadius * Math.sin(angle);
-    const circle = this.matter.bodies.circle(x, y, 10, {
-      isStatic: true,
-      friction: 0.01,
-    });
-    parts.push(circle);
-  }
-
-  for (let i = 1; i <= segments - 1; i++) {
-    const angle = Math.PI - (i * Math.PI/ 1.5) / segments;
-    const rotatedAngle = angle + Phaser.Math.DegToRad(150);
-    const x = bowlX + bowlRadius *1.4 * Math.cos(rotatedAngle);
-    const y = bowlY - 5 + bowlRadius *1.4 * Math.sin(rotatedAngle)*0.8; 
-    const circle = this.matter.bodies.circle(x, y, 10, {
-      isStatic: true,
-      friction: 0.01,
-    });
-    parts.push(circle);
-  }
-
-  const compoundBody = this.matter.body.create({ parts, isStatic: true });
-  this.matter.world.add(compoundBody);
-
-  this.matter.add.image(bowlX + 50, bowlY + 20, "track")
-        .setDisplaySize(100, 30)
-        .setAngle(90)
-        .setStatic(true)
-        .setVisible(false);
-  
-  //
-  const sensor = this.matter.bodies.circle(bowlX, bowlY + 50, 20, {
-    isSensor: true,
-    isStatic: true,
-    label: "bowlSensor",
-  });
-  this.matter.world.add(sensor);
-  this.bowlSensor = sensor;
 }
 }
